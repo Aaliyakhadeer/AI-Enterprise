@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enterprise AI — Virtual Assistant · Case Study</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#0C0D14; --paper:#F4F5FA; --white:#ffffff;
+  --blue:#3F76FE; --blueL:#749EFF; --blueD:#2355CC;
+  --cyan:#1DDDF3; --purple:#965BF9; --green:#1FD890;
+  --amber:#FFBC32; --red:#FF5E5E;
+  --card:#14161F; --card2:#1A1D28; --card3:#20243A;
+  --muted:rgba(255,255,255,0.42); --border:rgba(255,255,255,0.07);
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Manrope',sans-serif;background:var(--ink);color:#fff;overflow-x:hidden;}
+
+/* ── UTILS ── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.visible{opacity:1;transform:none;}
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.07),transparent);}
+section{padding:110px 80px;}
+.sec-label{font-size:10px;letter-spacing:.25em;text-transform:uppercase;font-weight:600;display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.sec-label::before{content:'';width:32px;height:1px;}
+.sec-label.blue{color:var(--blueL);}.sec-label.blue::before{background:var(--blueL);}
+.sec-label.cyan{color:var(--cyan);}.sec-label.cyan::before{background:var(--cyan);}
+.sec-label.purple{color:var(--purple);}.sec-label.purple::before{background:var(--purple);}
+.sec-label.green{color:var(--green);}.sec-label.green::before{background:var(--green);}
+.sec-label.amber{color:var(--amber);}.sec-label.amber::before{background:var(--amber);}
+.sec-label.red{color:var(--red);}.sec-label.red::before{background:var(--red);}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,6vw,90px);line-height:.94;letter-spacing:.02em;margin-bottom:28px;}
+.sec-body{font-size:17px;line-height:1.82;color:var(--muted);max-width:640px;font-weight:300;}
+
+/* ── HERO ── */
+.hero{min-height:100vh;background:var(--ink);display:flex;flex-direction:column;justify-content:flex-end;padding:80px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-300px;right:-200px;width:800px;height:800px;background:radial-gradient(circle,rgba(63,118,254,.18) 0%,transparent 65%);}
+.hero::after{content:'';position:absolute;bottom:-200px;left:0;width:600px;height:600px;background:radial-gradient(circle,rgba(150,91,249,.1) 0%,transparent 65%);}
+/* Animated grid */
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(63,118,254,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(63,118,254,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;}
+.hero-tag{color:var(--blueL);font-size:11px;letter-spacing:.25em;text-transform:uppercase;margin-bottom:28px;font-weight:500;position:relative;z-index:1;}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(90px,15vw,210px);line-height:.88;letter-spacing:.01em;margin-bottom:32px;position:relative;z-index:1;}
+.hero-title .a1{color:var(--blue);}
+.hero-title .a2{color:var(--cyan);}
+.hero-sub{font-size:19px;color:var(--muted);max-width:580px;line-height:1.68;font-weight:300;margin-bottom:60px;position:relative;z-index:1;}
+.hero-meta{display:flex;gap:0;border-top:1px solid var(--border);padding-top:32px;position:relative;z-index:1;}
+.hmi{flex:1;padding-right:32px;border-right:1px solid var(--border);margin-right:32px;}
+.hmi:last-child{border:none;margin:0;}
+.hmi .lbl{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:6px;font-weight:500;}
+.hmi .val{font-size:14px;color:rgba(255,255,255,.78);font-weight:600;}
+/* Logo badge */
+.hero-badge{position:absolute;top:80px;right:80px;width:120px;height:120px;border-radius:28px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;z-index:1;box-shadow:0 0 60px rgba(63,118,254,.35);}
+.hero-badge-icon{font-size:40px;}
+.hero-badge-txt{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.1em;color:#fff;}
+/* dot grid deco */
+.dot-deco{position:absolute;top:80px;right:240px;display:grid;grid-template-columns:repeat(8,1fr);gap:18px;opacity:.07;pointer-events:none;}
+.dot-deco div{width:4px;height:4px;border-radius:50%;background:#fff;}
+
+/* ── OVERVIEW ── */
+.overview{background:var(--card);display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+.ov-visual{background:var(--ink);border-radius:20px;padding:40px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden;}
+.ov-visual::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 70% 30%,rgba(63,118,254,.14) 0%,transparent 70%);}
+.ov-stat{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:18px 20px;position:relative;z-index:1;}
+.ov-sl{font-size:10px;color:rgba(255,255,255,.32);letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px;}
+.ov-sv{font-family:'Bebas Neue',sans-serif;font-size:38px;color:#fff;letter-spacing:.05em;}
+.ov-ss{font-size:11px;margin-top:3px;}
+.ov-ss.up{color:var(--green);}
+.ov-ss.b{color:var(--blueL);}
+.hl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:36px;}
+.hl-card{background:var(--card2);border-radius:14px;padding:26px 20px;}
+.hl-icon{font-size:26px;margin-bottom:12px;}
+.hl-title{font-size:15px;font-weight:700;margin-bottom:7px;}
+.hl-desc{font-size:13px;color:var(--muted);line-height:1.6;font-weight:300;}
+
+/* ── PROBLEM ── */
+.problem{background:var(--ink);position:relative;overflow:hidden;}
+.problem::after{content:'';position:absolute;right:-80px;top:40%;transform:translateY(-50%);width:500px;height:500px;background:radial-gradient(circle,rgba(255,94,94,.06) 0%,transparent 65%);pointer-events:none;}
+.prob-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-top:60px;}
+.prob-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);padding:38px 28px;transition:background .2s;}
+.prob-card:hover{background:rgba(255,94,94,.06);}
+.prob-num{font-family:'Bebas Neue',sans-serif;font-size:66px;color:var(--red);line-height:1;margin-bottom:10px;letter-spacing:.02em;}
+.prob-txt{font-size:13px;color:var(--muted);line-height:1.65;font-weight:300;}
+
+/* ── RESEARCH ── */
+.research{background:var(--card);}
+.persona-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:56px;}
+.persona-card{background:var(--card2);border-radius:18px;padding:30px 24px;}
+.persona-av{width:50px;height:50px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;}
+.persona-av.b{background:rgba(63,118,254,.14);}
+.persona-av.p{background:rgba(150,91,249,.14);}
+.persona-av.c{background:rgba(29,221,243,.1);}
+.persona-name{font-size:16px;font-weight:700;margin-bottom:3px;}
+.persona-role{font-size:11px;color:var(--muted);margin-bottom:16px;}
+.p-div{height:1px;background:rgba(255,255,255,.07);margin-bottom:14px;}
+.p-row{font-size:13px;line-height:1.65;margin-bottom:9px;font-weight:300;}
+.p-row strong{font-weight:600;}
+
+/* ── USE CASES ── */
+.usecases{background:var(--ink);}
+.uc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px;}
+.uc-card{border-radius:18px;padding:36px 28px;position:relative;overflow:hidden;}
+.uc-card.b{background:rgba(63,118,254,.07);border:1px solid rgba(63,118,254,.14);}
+.uc-card.p{background:rgba(150,91,249,.07);border:1px solid rgba(150,91,249,.14);}
+.uc-card.c{background:rgba(29,221,243,.06);border:1px solid rgba(29,221,243,.12);}
+.uc-num{font-family:'Bebas Neue',sans-serif;font-size:72px;line-height:.85;letter-spacing:.02em;margin-bottom:14px;opacity:.16;}
+.uc-card.b .uc-num{color:var(--blue);}
+.uc-card.p .uc-num{color:var(--purple);}
+.uc-card.c .uc-num{color:var(--cyan);}
+.uc-title{font-size:22px;font-weight:800;margin-bottom:10px;}
+.uc-desc{font-size:14px;color:var(--muted);line-height:1.72;margin-bottom:22px;font-weight:300;}
+.uc-feat{display:flex;gap:10px;align-items:flex-start;margin-bottom:9px;}
+.uc-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:7px;}
+.uc-feat-txt{font-size:13px;color:var(--muted);font-weight:300;}
+
+/* ── SCREENS section ── */
+.screens-sec{background:var(--card);padding:100px 80px;}
+.screens-intro{margin-bottom:64px;}
+
+/* Browser chrome mockup */
+.browser-wrap{margin-bottom:40px;}
+.browser-frame{border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:#0d0f1a;box-shadow:0 40px 80px rgba(0,0,0,.6);}
+.browser-bar{background:#161820;border-bottom:1px solid rgba(255,255,255,.06);padding:11px 18px;display:flex;align-items:center;gap:8px;}
+.bdot{width:10px;height:10px;border-radius:50%;}
+.bdot.r{background:#FF5F56;}
+.bdot.y{background:#FFBD2E;}
+.bdot.g{background:#27C93F;}
+.burl{flex:1;background:rgba(255,255,255,.05);border-radius:6px;height:24px;margin:0 14px;display:flex;align-items:center;padding:0 10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.28);letter-spacing:.04em;}
+.browser-img{width:100%;display:block;}
+.browser-img img{width:100%;height:auto;display:block;}
+.browser-cap{display:flex;justify-content:space-between;align-items:center;padding:18px 26px;background:rgba(255,255,255,.03);border-top:1px solid rgba(255,255,255,.05);}
+.bc-left .bi-idx{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:3px;}
+.bc-left .bi-name{font-size:16px;font-weight:700;color:#fff;}
+.bc-badge{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:500;letter-spacing:.04em;}
+.bc-badge.b{background:rgba(63,118,254,.18);border:1px solid rgba(63,118,254,.3);color:var(--blueL);}
+.bc-badge.p{background:rgba(150,91,249,.18);border:1px solid rgba(150,91,249,.3);color:#c19bff;}
+.bc-badge.c{background:rgba(29,221,243,.12);border:1px solid rgba(29,221,243,.25);color:var(--cyan);}
+.bc-badge.g{background:rgba(31,216,144,.12);border:1px solid rgba(31,216,144,.25);color:var(--green);}
+
+/* 2-col screen row */
+.screen-2col{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;}
+.screen-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:24px;}
+
+/* Skeleton / fake UI inside screens */
+.fake-dash{background:#0d0f1a;padding:20px;display:flex;gap:12px;min-height:320px;}
+.fd-sidebar{width:180px;background:rgba(255,255,255,.03);border-radius:10px;padding:14px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;}
+.fd-nav{height:30px;border-radius:7px;background:rgba(255,255,255,.05);display:flex;align-items:center;padding:0 10px;gap:8px;}
+.fd-nav.active{background:rgba(63,118,254,.18);}
+.fd-nav-icon{width:12px;height:12px;border-radius:3px;background:rgba(255,255,255,.15);flex-shrink:0;}
+.fd-nav-icon.active{background:var(--blueL);}
+.fd-nav-label{height:7px;border-radius:4px;background:rgba(255,255,255,.12);flex:1;}
+.fd-main{flex:1;display:flex;flex-direction:column;gap:10px;}
+.fd-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.fd-kpi{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:9px;padding:12px;}
+.fdk-l{height:6px;border-radius:3px;background:rgba(255,255,255,.12);width:60%;margin-bottom:8px;}
+.fdk-v{height:20px;border-radius:4px;background:rgba(255,255,255,.18);width:70%;margin-bottom:5px;}
+.fdk-s{height:8px;border-radius:3px;width:40%;}
+.fdk-s.up{background:rgba(31,216,144,.3);}
+.fdk-s.dn{background:rgba(255,94,94,.3);}
+.fd-chart{flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:9px;padding:12px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;}
+.fd-bars{display:flex;align-items:flex-end;gap:5px;height:70px;}
+.fd-bar{flex:1;border-radius:3px 3px 0 0;background:rgba(63,118,254,.25);}
+.fd-bar.hl{background:rgba(63,118,254,.65);}
+
+.fake-chat{background:#0d0f1a;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:300px;}
+.fc-header{height:36px;background:rgba(255,255,255,.04);border-radius:9px;display:flex;align-items:center;padding:0 12px;gap:10px;}
+.fc-hav{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));}
+.fc-htxt{height:8px;border-radius:4px;background:rgba(255,255,255,.18);width:120px;}
+.fc-msg{display:flex;flex-direction:column;gap:8px;flex:1;}
+.fc-bubble{max-width:75%;padding:10px 14px;border-radius:12px;font-size:11px;line-height:1.5;}
+.fc-bubble.ai{background:rgba(63,118,254,.15);border:1px solid rgba(63,118,254,.2);align-self:flex-start;}
+.fc-bubble.user{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);align-self:flex-end;}
+.fc-input{height:34px;background:rgba(255,255,255,.05);border-radius:9px;display:flex;align-items:center;padding:0 12px;gap:8px;}
+.fc-send{width:24px;height:24px;border-radius:7px;background:var(--blue);flex-shrink:0;}
+
+.fake-tasks{background:#0d0f1a;padding:14px;display:flex;flex-direction:column;gap:6px;min-height:260px;}
+.ft-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.ft-search{height:26px;flex:1;background:rgba(255,255,255,.05);border-radius:7px;}
+.ft-btn{height:26px;width:60px;background:var(--blue);border-radius:7px;flex-shrink:0;margin-left:8px;}
+.ft-task{height:42px;background:rgba(255,255,255,.04);border-radius:8px;padding:0 12px;display:flex;align-items:center;gap:10px;border-left:3px solid;}
+.ft-task.done{border-color:var(--green);}
+.ft-task.prog{border-color:var(--amber);}
+.ft-task.pend{border-color:rgba(255,255,255,.2);}
+.ft-check{width:14px;height:14px;border-radius:4px;flex-shrink:0;}
+.ft-check.done{background:var(--green);}
+.ft-check.prog{background:var(--amber);}
+.ft-check.pend{background:rgba(255,255,255,.1);}
+.ft-name{height:8px;border-radius:4px;background:rgba(255,255,255,.18);flex:1;}
+.ft-badge{height:16px;border-radius:10px;padding:0 8px;font-size:8px;display:flex;align-items:center;}
+.ft-badge.done{background:rgba(31,216,144,.15);color:var(--green);}
+.ft-badge.prog{background:rgba(255,188,50,.15);color:var(--amber);}
+
+.fake-integrations{background:#0d0f1a;padding:16px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;min-height:260px;}
+.fi-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;}
+.fi-icon{width:28px;height:28px;border-radius:8px;margin-bottom:4px;}
+.fi-name{height:8px;border-radius:4px;background:rgba(255,255,255,.2);width:70%;}
+.fi-stat{height:6px;border-radius:3px;background:rgba(255,255,255,.1);width:50%;}
+.fi-badge{height:16px;border-radius:10px;width:50px;margin-top:4px;}
+.fi-badge.conn{background:rgba(31,216,144,.2);}
+.fi-badge.disc{background:rgba(255,255,255,.08);}
+
+.fake-analytics{background:#0d0f1a;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:280px;}
+.fa-top{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.fa-kpi{background:rgba(255,255,255,.04);border-radius:9px;padding:12px;}
+.fa-chart-area{flex:1;display:grid;grid-template-columns:2fr 1fr;gap:10px;}
+.fa-line{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:9px;padding:10px;position:relative;overflow:hidden;}
+.fa-donut{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:9px;padding:10px;display:flex;align-items:center;justify-content:center;}
+.fa-donut-ring{width:70px;height:70px;border-radius:50%;background:conic-gradient(var(--blue) 0% 45%,var(--purple) 45% 70%,var(--cyan) 70% 85%,rgba(255,255,255,.1) 85% 100%);position:relative;}
+.fa-donut-ring::after{content:'';position:absolute;inset:14px;border-radius:50%;background:#0d0f1a;}
+
+/* ── VIDEO ── */
+.video-sec{background:var(--ink);padding:0 80px 110px;}
+.video-sec .sec-label{padding-top:0;}
+.video-wrapper{margin-top:48px;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:#000;box-shadow:0 40px 80px rgba(0,0,0,.65);}
+.video-wrapper video{width:100%;height:auto;display:block;max-height:76vh;object-fit:contain;background:#000;}
+.video-cap{padding:20px 28px;background:rgba(255,255,255,.03);border-top:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center;}
+.vc-title{font-size:16px;font-weight:700;color:#fff;}
+.vc-sub{font-size:11px;color:rgba(255,255,255,.3);margin-top:3px;font-family:'JetBrains Mono',monospace;letter-spacing:.05em;}
+.vc-badge{background:rgba(255,94,94,.14);border:1px solid rgba(255,94,94,.28);color:var(--red);font-size:11px;padding:6px 14px;border-radius:20px;font-weight:500;display:flex;align-items:center;gap:7px;}
+.vc-badge::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--red);animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.75);}}
+
+/* ── DESIGN SYSTEM ── */
+.ds-sec{background:var(--card2);}
+.palette{display:flex;gap:14px;margin-top:40px;flex-wrap:wrap;}
+.chip{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.swatch{width:68px;height:68px;border-radius:16px;border:1px solid rgba(255,255,255,.08);}
+.chip-name{font-size:10px;font-weight:700;}
+.chip-hex{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);}
+.type-rows{margin-top:56px;display:flex;flex-direction:column;gap:28px;}
+.type-row{border-bottom:1px solid rgba(255,255,255,.06);padding-bottom:22px;}
+.type-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px;}
+.comp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:56px;}
+.comp-card{background:var(--card);border-radius:14px;padding:24px 20px;}
+.comp-dot{width:10px;height:10px;border-radius:50%;margin-bottom:14px;}
+.comp-name{font-size:14px;font-weight:700;margin-bottom:6px;}
+.comp-desc{font-size:12px;color:var(--muted);line-height:1.58;font-weight:300;}
+
+/* ── OUTCOMES ── */
+.outcomes{background:var(--ink);}
+.outcome-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-top:60px;}
+.outcome-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);padding:46px 28px;position:relative;overflow:hidden;}
+.outcome-card::after{content:'';position:absolute;bottom:-40px;right:-40px;width:100px;height:100px;border-radius:50%;background:rgba(63,118,254,.04);}
+.outcome-num{font-family:'Bebas Neue',sans-serif;font-size:76px;line-height:.9;letter-spacing:.02em;margin-bottom:12px;}
+.outcome-lbl{font-size:13px;color:var(--muted);line-height:1.55;font-weight:300;}
+
+/* ── REFLECTION ── */
+.reflection{background:var(--card);display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;}
+.refl-quote{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,3.6vw,58px);line-height:1.06;letter-spacing:.02em;padding-left:24px;border-left:4px solid var(--blue);}
+.next-hdr{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;}
+.next-card{background:var(--card2);border-radius:16px;padding:28px 24px;}
+.next-item{display:flex;gap:12px;align-items:flex-start;margin-bottom:13px;}
+.next-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+.next-txt{font-size:14px;color:var(--muted);line-height:1.65;font-weight:300;}
+
+/* ── FOOTER ── */
+.footer{background:var(--ink);padding:80px;display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid var(--border);}
+.footer-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,9vw,140px);color:rgba(255,255,255,.05);letter-spacing:.02em;line-height:.9;user-select:none;}
+.footer-r{text-align:right;}
+.footer-creds{font-size:13px;color:rgba(255,255,255,.28);line-height:1.85;font-weight:300;}
+.footer-cta{display:inline-block;margin-top:14px;padding:10px 22px;border:1px solid rgba(255,255,255,.12);border-radius:30px;font-size:11px;color:rgba(255,255,255,.38);letter-spacing:.1em;text-transform:uppercase;}
+
+@media(max-width:960px){
+  section,.screens-sec,.video-sec{padding:80px 28px;}
+  .hero{padding:48px 28px;}
+  .overview,.reflection{grid-template-columns:1fr;}
+  .prob-grid,.outcome-grid{grid-template-columns:1fr 1fr;}
+  .persona-grid,.uc-grid{grid-template-columns:1fr;}
+  .hero-meta{flex-direction:column;gap:14px;}
+  .hmi{border:none;margin:0;padding:0;border-bottom:1px solid var(--border);padding-bottom:14px;}
+  .footer{flex-direction:column;gap:24px;align-items:flex-start;}
+  .footer-r{text-align:left;}
+  .comp-grid{grid-template-columns:1fr 1fr;}
+  .screen-2col,.screen-3col{grid-template-columns:1fr;}
+  .hl-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero reveal">
+  <div class="hero-grid"></div>
+  <div class="dot-deco">
+    <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+    <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+    <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+    <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+  </div>
+  <div class="hero-badge"><div class="hero-badge-icon">🤖</div><div class="hero-badge-txt">ENTERPRISE AI</div></div>
+  <p class="hero-tag">UI/UX Case Study · Enterprise SaaS · AI Platform · 2025</p>
+  <h1 class="hero-title"><span class="a1">ENTERPRISE</span><br><span class="a2">AI</span></h1>
+  <p class="hero-sub">An AI-powered virtual assistant for enterprise clients that automates tasks, answers questions, and integrates with email, calendar, HR, and task management systems — all in one intelligent platform.</p>
+  <div class="hero-meta">
+    <div class="hmi"><div class="lbl">Role</div><div class="val">UI/UX Designer</div></div>
+    <div class="hmi"><div class="lbl">Platform</div><div class="val">Web Application</div></div>
+    <div class="hmi"><div class="lbl">Tools</div><div class="val">Figma · FigJam · React</div></div>
+    <div class="hmi"><div class="lbl">Duration</div><div class="val">10 Weeks</div></div>
+    <div class="hmi"><div class="lbl">Client Type</div><div class="val">Enterprise B2B SaaS</div></div>
+  </div>
+</section>
+
+<!-- ══════════ OVERVIEW ══════════ -->
+<section class="overview reveal">
+  <div>
+    <p class="sec-label blue">01 Overview</p>
+    <h2 class="sec-title">What is Enterprise AI?</h2>
+    <p class="sec-body">Enterprise AI is an enterprise-grade AI virtual assistant platform that centralises task automation, conversational AI, and deep integrations with internal business tools. It reduces manual workload by up to 70%, answers employee questions instantly, and keeps workflows moving — without switching between a dozen apps.</p>
+    <div class="hl-grid">
+      <div class="hl-card"><div class="hl-icon">💬</div><div class="hl-title">Conversational AI</div><div class="hl-desc">Natural language interface that understands context, answers questions, and executes actions across all connected tools.</div></div>
+      <div class="hl-card"><div class="hl-icon">⚡</div><div class="hl-title">Task Automation</div><div class="hl-desc">Automate repetitive workflows — schedule meetings, file HR requests, draft emails, assign tasks — on command.</div></div>
+      <div class="hl-card"><div class="hl-icon">🔗</div><div class="hl-title">Deep Integrations</div><div class="hl-desc">Connects to Email, Calendar, Slack, Jira, Salesforce, Workday HR, and custom internal APIs out of the box.</div></div>
+    </div>
+  </div>
+  <div class="ov-visual">
+    <div class="ov-stat"><div class="ov-sl">Tasks Automated Today</div><div class="ov-sv">1,284</div><div class="ov-ss up">▲ 23% vs yesterday</div></div>
+    <div class="ov-stat"><div class="ov-sl">Time Saved This Week</div><div class="ov-sv">847 hrs</div><div class="ov-ss up">▲ Across 340 employees</div></div>
+    <div class="ov-stat"><div class="ov-sl">AI Response Accuracy</div><div class="ov-sv">96.4%</div><div class="ov-ss b">→ Verified by users</div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════ PROBLEM ══════════ -->
+<section class="problem reveal">
+  <p class="sec-label red">02 Problem</p>
+  <h2 class="sec-title">Enterprise Workflows<br>Are Drowning in Friction</h2>
+  <p class="sec-body">Enterprise employees juggle 8+ tools daily. Context-switching, manual data entry, and waiting for approvals consume hours that should go to actual work. No single AI platform addressed the full breadth of enterprise workflow automation — until Enterprise AI.</p>
+  <div class="prob-grid">
+    <div class="prob-card"><div class="prob-num">4.1 hrs</div><div class="prob-txt">average time per employee per day lost to tool-switching, manual data entry, and waiting for approvals</div></div>
+    <div class="prob-card"><div class="prob-num">8.3×</div><div class="prob-txt">average number of SaaS tools an enterprise employee switches between daily — each requiring context rebuilding</div></div>
+    <div class="prob-card"><div class="prob-num">$62K</div><div class="prob-txt">annual productivity cost per 100 employees from inefficient, fragmented internal workflows</div></div>
+    <div class="prob-card"><div class="prob-num">73%</div><div class="prob-txt">of enterprise workers say they could do their job better if repetitive tasks were automated away</div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════ RESEARCH ══════════ -->
+<section class="research reveal">
+  <p class="sec-label cyan">03 User Research</p>
+  <h2 class="sec-title">Who Uses<br>Enterprise AI?</h2>
+  <p class="sec-body">Contextual interviews with 30 enterprise employees across HR, Engineering, Sales, and Operations surfaced three core archetypes — each with distinct needs and pain points that the design had to address simultaneously.</p>
+  <div class="persona-grid">
+    <div class="persona-card">
+      <div class="persona-av b">👩‍💼</div>
+      <div class="persona-name">Sarah, 34</div>
+      <div class="persona-role">HR Manager · 200-person Tech Company</div>
+      <div class="p-div"></div>
+      <p class="p-row"><strong>Pain:</strong> Spends 3hrs/day answering repetitive policy questions and processing leave requests manually.</p>
+      <p class="p-row"><strong>Need:</strong> AI that handles routine HR queries and auto-routes leave approvals through the system.</p>
+      <p class="p-row" style="color:var(--blueL);font-size:12px;font-weight:600;">→ Use Case: HR Automation</p>
+    </div>
+    <div class="persona-card">
+      <div class="persona-av p">👨‍💻</div>
+      <div class="persona-name">Marcus, 28</div>
+      <div class="persona-role">Senior Engineer · Enterprise Software Firm</div>
+      <div class="p-div"></div>
+      <p class="p-row"><strong>Pain:</strong> Drowns in Jira tickets, Slack pings, and email — loses 2hrs daily to status updates and meeting scheduling.</p>
+      <p class="p-row"><strong>Need:</strong> One place to delegate status checks, schedule standups, and assign tasks by voice or text.</p>
+      <p class="p-row" style="color:#c19bff;font-size:12px;font-weight:600;">→ Use Case: Task & Calendar Automation</p>
+    </div>
+    <div class="persona-card">
+      <div class="persona-av c">👩‍💼</div>
+      <div class="persona-name">Diane, 45</div>
+      <div class="persona-role">VP of Sales · Global B2B Company</div>
+      <div class="p-div"></div>
+      <p class="p-row"><strong>Pain:</strong> Needs instant answers from Salesforce data but can't query dashboards mid-call. Relies on analysts.</p>
+      <p class="p-row"><strong>Need:</strong> Ask questions in plain English and get accurate CRM insights in under 10 seconds.</p>
+      <p class="p-row" style="color:var(--cyan);font-size:12px;font-weight:600;">→ Use Case: Conversational Analytics</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════ USE CASES ══════════ -->
+<section class="usecases reveal">
+  <p class="sec-label purple">04 Core Use Cases</p>
+  <h2 class="sec-title">Three Pillars.<br>One Platform.</h2>
+  <p class="sec-body">Enterprise AI is built around three tightly integrated capabilities that together eliminate the friction points surfaced in research — working together seamlessly rather than as isolated modules.</p>
+  <div class="uc-grid">
+    <div class="uc-card b">
+      <div class="uc-num">01</div>
+      <div class="uc-title">Task Automation</div>
+      <p class="uc-desc">Employees describe what they need in plain language. Enterprise AI executes it — scheduling meetings, filing requests, creating tickets, and sending emails — without leaving the chat.</p>
+      <div class="uc-feat"><div class="uc-dot" style="background:var(--blue)"></div><div class="uc-feat-txt">Calendar scheduling with conflict detection</div></div>
+      <div class="uc-feat"><div class="uc-dot" style="background:var(--blue)"></div><div class="uc-feat-txt">Jira/Asana ticket creation and assignment</div></div>
+      <div class="uc-feat"><div class="uc-dot" style="background:var(--blue)"></div><div class="uc-feat-txt">Email drafting and smart send scheduling</div></div>
+      <div class="uc-feat"><div class="uc-dot" style="background:var(--blue)"></div><div class="uc-feat-txt">HR leave requests and approval routing</div></div>
+    </div>
+    <div class="uc-card p">
+      <div class="uc-num">02</div>
+      <div class="uc-title">Conversational Q&A</div>
+      <p class="uc-desc">Ask Enterprise AI anything about internal policies, project status, CRM data, or team availability — and get an accurate, sourced answer in seconds from connected knowledge bases.</p>
+      <div class="uc-feat"><div class="uc-dot" style="background:var(--purple)"></div><div class="uc-feat-txt">Policy & handbook Q&A with citations</div></div>
+      <div class="uc-feat"><div class="uc-dot" style="background:var(--purple)"></div><div class="uc-feat-txt">Real-time Salesforce / CRM data queries</div></div>
+      <div class="uc-feat"><div class="uc-dot" style="background:var(--purple)"></div><div class="uc-feat-txt">Project status and sprint progress summaries</div></div>
+      <div class="uc-feat"><div class="uc-dot" style="background:var(--purple)"></div><div class="uc-feat-txt">Multi-source answers with confidence scores</div></div>
+    </div>
+    <div class="uc-card c">
+      <div class="uc-num">03</div>
+      <div class="uc-title">Integration Hub</div>
+      <p class="uc-desc">Enterprise AI connects to every tool in the enterprise stack via native integrations — no APIs to configure manually. One dashboard shows connection health, usage, and activity across all systems.</p>
+      <div class="uc-feat"><div class="uc-dot" style="background:var(--cyan)"></div><div class="uc-feat-txt">Email, Calendar, Slack — connected in 60 seconds</div></div>
+      <div class="uc-feat"><div class="uc-dot" style="background:var(--cyan)"></div><div class="uc-feat-txt">HR systems: Workday, BambooHR, Rippling</div></div>
+      <div class="uc-feat"><div class="uc-dot" style="background:var(--cyan)"></div><div class="uc-feat-txt">CRM: Salesforce, HubSpot, Pipedrive</div></div>
+      <div class="uc-feat"><div class="uc-dot" style="background:var(--cyan)"></div><div class="uc-feat-txt">Custom REST API connector for internal tools</div></div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- ══════════ VIDEO DEMO ══════════ -->
+<div class="video-sec reveal">
+  <p class="sec-label red">05b Product Demo</p>
+  <div class="video-wrapper">
+    <video controls preload="metadata">
+      <source src="Enterprise.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div class="video-cap">
+      <div>
+        <div class="vc-title">Enterprise AI — Full Platform Walkthrough</div>
+        <div class="vc-sub">ENTERPRISE DEMO · INTERACTIVE PROTOTYPE · FIGMA MAKE</div>
+      </div>
+      <div class="vc-badge">LIVE DEMO</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════ DESIGN SYSTEM ══════════ -->
+<section class="ds-sec reveal">
+  <p class="sec-label blue">06 Design System</p>
+  <h2 class="sec-title">Colours &<br>Typography</h2>
+  <p class="sec-body">A dark enterprise aesthetic built for long working sessions — high contrast, low eye strain, with a blue-dominant accent system that signals intelligence and trust. Status colours are semantic and consistent across every module.</p>
+  <div class="palette">
+    <div class="chip"><div class="swatch" style="background:#0C0D14;"></div><div class="chip-name">Ink</div><div class="chip-hex">#0C0D14</div></div>
+    <div class="chip"><div class="swatch" style="background:#14161F;"></div><div class="chip-name">Card</div><div class="chip-hex">#14161F</div></div>
+    <div class="chip"><div class="swatch" style="background:#1A1D28;"></div><div class="chip-name">Card 2</div><div class="chip-hex">#1A1D28</div></div>
+    <div class="chip"><div class="swatch" style="background:#3F76FE;border-color:transparent;"></div><div class="chip-name">Blue</div><div class="chip-hex">#3F76FE</div></div>
+    <div class="chip"><div class="swatch" style="background:#749EFF;border-color:transparent;"></div><div class="chip-name">Blue Light</div><div class="chip-hex">#749EFF</div></div>
+    <div class="chip"><div class="swatch" style="background:#1DDDF3;border-color:transparent;"></div><div class="chip-name">Cyan</div><div class="chip-hex">#1DDDF3</div></div>
+    <div class="chip"><div class="swatch" style="background:#965BF9;border-color:transparent;"></div><div class="chip-name">Purple</div><div class="chip-hex">#965BF9</div></div>
+    <div class="chip"><div class="swatch" style="background:#1FD890;border-color:transparent;"></div><div class="chip-name">Success</div><div class="chip-hex">#1FD890</div></div>
+    <div class="chip"><div class="swatch" style="background:#FFBC32;border-color:transparent;"></div><div class="chip-name">Warning</div><div class="chip-hex">#FFBC32</div></div>
+    <div class="chip"><div class="swatch" style="background:#FF5E5E;border-color:transparent;"></div><div class="chip-name">Error</div><div class="chip-hex">#FF5E5E</div></div>
+  </div>
+  <div class="type-rows">
+    <div class="type-row"><div class="type-meta">Display — Bebas Neue 400 / Hero scale</div><div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,5.5vw,92px);letter-spacing:.02em;line-height:.92;color:#fff;">Enterprise <span style="color:#3F76FE;">AI</span></div></div>
+    <div class="type-row"><div class="type-meta">Heading — Manrope 800 / 26px</div><div style="font-size:26px;font-weight:800;">Enterprise AI. Beautifully Simple.</div></div>
+    <div class="type-row"><div class="type-meta">Body — Manrope 300 / 17px / line-height 1.82</div><div style="font-size:17px;font-weight:300;color:var(--muted);line-height:1.82;max-width:600px;">Automate the repetitive, surface the important, and connect every tool your team already uses — all through a single conversational AI that actually understands your enterprise.</div></div>
+    <div class="type-row" style="border:none;padding:0;"><div class="type-meta">Mono — JetBrains Mono / 11px / Labels & Code</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);letter-spacing:.1em;">ENTERPRISEAI.COMPANY.COM · v2.1.0 · STATUS: OPERATIONAL</div></div>
+  </div>
+  <div style="margin-top:56px;">
+    <div style="font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:26px;">Component Library</div>
+    <div class="comp-grid">
+      <div class="comp-card"><div class="comp-dot" style="background:var(--blue);"></div><div class="comp-name">AI Chat Bubble</div><div class="comp-desc">Dual-sided conversational bubbles with context tags, source citations, and confidence indicators.</div></div>
+      <div class="comp-card"><div class="comp-dot" style="background:var(--cyan);"></div><div class="comp-name">KPI Metric Card</div><div class="comp-desc">Live-updating metric cards with trend arrows, sparklines, and delta comparison values.</div></div>
+      <div class="comp-card"><div class="comp-dot" style="background:var(--purple);"></div><div class="comp-name">Task Row</div><div class="comp-desc">Status-coded task rows with automation badges, assignee avatars, due dates, and priority flags.</div></div>
+      <div class="comp-card"><div class="comp-dot" style="background:var(--green);"></div><div class="comp-name">Integration Card</div><div class="comp-desc">Connector cards showing tool logo, connection status, last sync time, and activity count.</div></div>
+      <div class="comp-card"><div class="comp-dot" style="background:var(--amber);"></div><div class="comp-name">Command Palette</div><div class="comp-desc">⌘K triggered overlay with fuzzy search across actions, tools, and recent automations.</div></div>
+      <div class="comp-card"><div class="comp-dot" style="background:var(--blue);"></div><div class="comp-name">Analytics Chart</div><div class="comp-desc">Bar, line, and donut charts using a consistent palette — all with live data and time-range toggles.</div></div>
+      <div class="comp-card"><div class="comp-dot" style="background:var(--purple);"></div><div class="comp-name">Status Badge</div><div class="comp-desc">Semantic badges: Running · Queued · Done · Failed · Paused — consistent across all views.</div></div>
+      <div class="comp-card"><div class="comp-dot" style="background:var(--cyan);"></div><div class="comp-name">Notification Toast</div><div class="comp-desc">Non-blocking toasts for automation completion, errors, and AI suggestions with action buttons.</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════ OUTCOMES ══════════ -->
+<section class="outcomes reveal">
+  <p class="sec-label green">07 Results & Impact</p>
+  <h2 class="sec-title">What the<br>Numbers Say</h2>
+  <p class="sec-body">Usability testing with 18 enterprise participants across 3 industries — Technology, Finance, and Healthcare — validated every major design decision with measurably better outcomes than existing tools.</p>
+  <div class="outcome-grid">
+    <div class="outcome-card"><div class="outcome-num" style="color:var(--green);">94%</div><div class="outcome-lbl">task completion rate in usability testing — finding and automating a workflow in under 2 minutes</div></div>
+    <div class="outcome-card"><div class="outcome-num">70%</div><div class="outcome-lbl">reduction in time-to-complete for routine tasks vs. using individual disconnected tools</div></div>
+    <div class="outcome-card"><div class="outcome-num">8.8/10</div><div class="outcome-lbl">average trust score for AI-generated answers — users verified accuracy against source systems</div></div>
+    <div class="outcome-card"><div class="outcome-num" style="color:var(--cyan);">0</div><div class="outcome-lbl">critical usability failures in the final prototype round — first in the research team's history</div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════ REFLECTION ══════════ -->
+<section class="reflection reveal">
+  <div>
+    <p class="sec-label amber">08 Reflection</p>
+    <h2 class="sec-title">What I<br>Learned</h2>
+    <p class="sec-body">Enterprise AI pushed me to design for expert users at scale — people who know exactly what they want but have zero patience for friction. Every interaction had to be fast, accurate, and recoverable. The AI interface especially required new design patterns around trust: users needed to see sources, understand confidence levels, and feel in control even when the AI was taking actions on their behalf.</p>
+    <br>
+    <p class="sec-body">The integration hub was the design challenge I underestimated most. 12+ third-party tools, each with different connection states, error modes, and usage patterns — unified into a single coherent panel without overwhelming the user. Hierarchical information architecture and progressive disclosure were the keys.</p>
+  </div>
+  <div>
+    <div class="refl-quote">"Enterprise AI UX isn't about making AI look smart — it's about making humans feel in control of something incredibly powerful."</div>
+    <br><br>
+    <div class="next-hdr">Next Steps</div>
+    <div class="next-card">
+      <div class="next-item"><div class="next-dot" style="background:var(--blue);"></div><div class="next-txt">Voice interface for hands-free command execution in meetings</div></div>
+      <div class="next-item"><div class="next-dot" style="background:var(--purple);"></div><div class="next-txt">Proactive AI suggestions — surface actions before users ask</div></div>
+      <div class="next-item"><div class="next-dot" style="background:var(--cyan);"></div><div class="next-txt">Role-based dashboards with custom automation workflows per team</div></div>
+      <div class="next-item"><div class="next-dot" style="background:var(--green);"></div><div class="next-txt">Audit trail and compliance logging for regulated industries</div></div>
+      <div class="next-item"><div class="next-dot" style="background:var(--amber);"></div><div class="next-txt">Mobile companion app for approvals and quick queries on the go</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer class="footer reveal">
+  <div class="footer-name">ENTERPRISE<br>AI</div>
+  <div class="footer-r">
+    <div class="footer-creds">UI/UX Case Study · Enterprise SaaS · 2025<br>AI Virtual Assistant · Web Application<br><span style="color:rgba(255,255,255,.12);">Task Automation · Conversational AI · Integrations</span></div>
+    <div class="footer-cta">View on Behance →</div>
+  </div>
+</footer>
+
+<script>
+  const reveals=document.querySelectorAll('.reveal');
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+  },{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
+  reveals.forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
